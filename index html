@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sumerian ME Index</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Tailwind via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: radial-gradient(circle at top, #111827 0, #020617 40%, #000 100%);
+    }
+    .me-card[data-hidden="true"] {
+      display: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen text-slate-100">
+  <header class="border-b border-slate-800/80 bg-slate-900/50 backdrop-blur">
+    <div class="max-w-5xl mx-auto px-4 py-4 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight">
+          Sumerian <span class="text-indigo-300">ME</span> Index
+        </h1>
+        <p class="text-sm text-slate-300 max-w-2xl mt-1">
+          A modern index of the known <em>ME</em> — the divine decrees that structure fate,
+          culture, crafts, emotions, and cosmic order in Sumerian mythology.
+        </p>
+      </div>
+      <div class="text-xs text-slate-400 sm:text-right">
+        Source: “Me (mythology)” and the myth <em>Inanna and Enki</em> (fragmentary tablets).<br />
+        Numbers follow the preserved order of the list.
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 py-6 space-y-6">
+    <!-- Controls -->
+    <section class="bg-slate-900/70 border border-slate-800 rounded-2xl p-4 shadow-lg shadow-black/40">
+      <div class="flex flex-col md:flex-row gap-4 md:items-end md:justify-between">
+        <div class="flex-1">
+          <label for="searchInput" class="block text-xs font-semibold tracking-wide text-slate-300 uppercase mb-1">
+            Search
+          </label>
+          <input
+            id="searchInput"
+            type="text"
+            placeholder="Search by name, number, or description..."
+            class="w-full rounded-xl bg-slate-950/70 border border-slate-700/80 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 placeholder:text-slate-500"
+          />
+        </div>
+        <div class="flex flex-col sm:flex-row gap-4">
+          <div>
+            <label for="categoryFilter" class="block text-xs font-semibold tracking-wide text-slate-300 uppercase mb-1">
+              Category
+            </label>
+            <select
+              id="categoryFilter"
+              class="w-full sm:w-48 rounded-xl bg-slate-950/70 border border-slate-700/80 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
+            >
+              <option value="all">All categories</option>
+              <option value="authority">Authority & Kingship</option>
+              <option value="priesthood">Priesthood & Temple</option>
+              <option value="underworld">Underworld & Liminal</option>
+              <option value="war">War & Conflict</option>
+              <option value="social">Law, Society & Sex</option>
+              <option value="arts">Art, Music & Crafts</option>
+              <option value="psychological">Mind & Emotion</option>
+              <option value="mixed">Other / Mixed</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold tracking-wide text-slate-300 uppercase mb-1">
+              Sort
+            </label>
+            <select
+              id="sortSelect"
+              class="w-full sm:w-40 rounded-xl bg-slate-950/70 border border-slate-700/80 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
+            >
+              <option value="number-asc">Number (1 → 64)</option>
+              <option value="number-desc">Number (64 → 1)</option>
+              <option value="name-asc">Name (A → Z)</option>
+              <option value="name-desc">Name (Z → A)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Count -->
+    <section class="flex items-center justify-between text-xs text-slate-400">
+      <p><span id="visibleCount" class="font-semibold text-indigo-300">64</span> ME shown</p>
+      <button
+        id="resetBtn"
+        type="button"
+        class="text-xs px-3 py-1 rounded-full border border-slate-600/80 hover:border-indigo-400 hover:text-indigo-300 transition-colors"
+      >
+        Reset filters
+      </button>
+    </section>
+
+    <!-- Cards -->
+    <section
+      id="meGrid"
+      class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr"
+    >
+      <!-- Cards injected by JS -->
+    </section>
+
+    <section class="text-xs text-slate-400 border-t border-slate-800/70 pt-4">
+      <p class="mb-1">
+        Note: Some items are ambiguous or fragmentary in the original tablets.
+        Modern labels and groupings here are interpretive and for study purposes only.
+      </p>
+      <p>
+        You can freely copy, adapt, or extend this file for your own research, teaching,
+        or spiritual/creative work.
+      </p>
+    </section>
+  </main>
+
+  <script>
+    // Raw data based on the preserved list of me
+    // Source: "Me (mythology)" article on Wikipedia.
+    const meList = [
+      { n: 1,  name: "ENship", description: "High lordship; supreme office of a cultic ruler.", cat: "authority" },
+      { n: 2,  name: "Godship", description: "Divine status itself; being among the gods.", cat: "authority" },
+      { n: 3,  name: "Exalted and enduring crown", description: "The sacred crown as symbol of rule and continuity.", cat: "authority" },
+      { n: 4,  name: "Throne of kingship", description: "Seat of royal power and judgment.", cat: "authority" },
+      { n: 5,  name: "Exalted sceptre", description: "Royal staff as emblem of command.", cat: "authority" },
+      { n: 6,  name: "Royal insignia", description: "Badges and symbols marking kingly authority.", cat: "authority" },
+      { n: 7,  name: "Exalted shrine", description: "A high, holy sanctuary of the gods.", cat: "priesthood" },
+      { n: 8,  name: "Shepherdship", description: "Model of rulership as care for the people.", cat: "authority" },
+      { n: 9,  name: "Kingship", description: "Divinely sanctioned rule over a city or land.", cat: "authority" },
+      { n: 10, name: "Lasting ladyship", description: "Enduring authority of the great goddess / queen.", cat: "authority" },
+      { n: 11, name: "\"Divine lady\" (priestly office)", description: "A high female priestly role in the cult.", cat: "priesthood" },
+      { n: 12, name: "Ishib (priestly office)", description: "Purification priest associated with ritual washing.", cat: "priesthood" },
+      { n: 13, name: "Lumah (priestly office)", description: "Temple official or priest attached to a deity.", cat: "priesthood" },
+      { n: 14, name: "Guda (priestly office)", description: "Temple priest or singer serving in ritual.", cat: "priesthood" },
+      { n: 15, name: "Truth", description: "Cosmic reliability, right speech, and honesty.", cat: "social" },
+      { n: 16, name: "Descent into the netherworld", description: "The power or ritual of entering the underworld.", cat: "underworld" },
+      { n: 17, name: "Ascent from the netherworld", description: "Return or release from the realm of the dead.", cat: "underworld" },
+      { n: 18, name: "Kurgarra (divine eunuch)", description: "A liminal being serving Inanna between worlds.", cat: "underworld" },
+      { n: 19, name: "Girbadara (eunuch)", description: "Cultic servant or ritual attendant.", cat: "mixed" },
+      { n: 20, name: "Sagursag (eunuch entertainer)", description: "Ritual performer tied to Inanna’s cult.", cat: "arts" },
+      { n: 21, name: "Battle-standard", description: "Symbol and rallying point in war.", cat: "war" },
+      { n: 22, name: "The flood", description: "World-shaping, purifying, and devastating deluge.", cat: "underworld" },
+      { n: 23, name: "Weapons", description: "Divinely ordained instruments of battle.", cat: "war" },
+      { n: 24, name: "Sexual intercourse", description: "Sacralized eros and generative union.", cat: "social" },
+      { n: 25, name: "Prostitution", description: "Temple and social role linked to sexuality and economy.", cat: "social" },
+      { n: 26, name: "Law", description: "Binding rules that structure human society.", cat: "social" },
+      { n: 27, name: "Libel", description: "False accusation and slander as a decreed possibility.", cat: "social" },
+      { n: 28, name: "Art", description: "Creative making, image and form.", cat: "arts" },
+      { n: 29, name: "Cult chamber", description: "Inner sacred room of a temple.", cat: "priesthood" },
+      { n: 30, name: "\"Hierodule of heaven\"", description: "Dedicated sacred servant of a deity.", cat: "priesthood" },
+      { n: 31, name: "Gusilim (instrument)", description: "A specific sacred musical instrument.", cat: "arts" },
+      { n: 32, name: "Music", description: "Ordered sound used in worship and joy.", cat: "arts" },
+      { n: 33, name: "Eldership", description: "Council and wisdom of elders.", cat: "social" },
+      { n: 34, name: "Heroship", description: "Heroic status, courage, and legendary deeds.", cat: "war" },
+      { n: 35, name: "Power", description: "Capacity to act, command, and transform.", cat: "authority" },
+      { n: 36, name: "Enmity", description: "Hostility and deep rivalry.", cat: "psychological" },
+      { n: 37, name: "Straightforwardness", description: "Integrity, direct dealing, and clarity.", cat: "social" },
+      { n: 38, name: "Destruction of cities", description: "Catastrophic ruin as a possible divine decree.", cat: "war" },
+      { n: 39, name: "Lamentation", description: "Ritual mourning and grief songs.", cat: "arts" },
+      { n: 40, name: "Rejoicing of the heart", description: "Deep joy, celebration, and contentment.", cat: "psychological" },
+      { n: 41, name: "Falsehood", description: "Lies and deception within the human condition.", cat: "psychological" },
+      { n: 42, name: "Art of metalworking", description: "Working metals into tools, weapons, and ritual items.", cat: "arts" },
+      { n: 43, name: "Scribeship", description: "The craft of writing and record-keeping.", cat: "arts" },
+      { n: 44, name: "Craft of the smith", description: "Shaping metal in forge and fire.", cat: "arts" },
+      { n: 45, name: "Craft of the leatherworker", description: "Working hides into garments and objects.", cat: "arts" },
+      { n: 46, name: "Craft of the builder", description: "Raising walls, temples, and houses.", cat: "arts" },
+      { n: 47, name: "Craft of the basket weaver", description: "Weaving reeds into vessels and structures.", cat: "arts" },
+      { n: 48, name: "Wisdom", description: "Subtle insight, counsel, and knowing.", cat: "psychological" },
+      { n: 49, name: "Attention", description: "Focused awareness and care.", cat: "psychological" },
+      { n: 50, name: "Holy purification", description: "Cleansing rites for people and sacred spaces.", cat: "priesthood" },
+      { n: 51, name: "Fear", description: "Awe, dread, and reverence before the divine.", cat: "psychological" },
+      { n: 52, name: "Terror", description: "Overwhelming fear and panic.", cat: "psychological" },
+      { n: 53, name: "Strife", description: "Conflict and quarrel between people.", cat: "psychological" },
+      { n: 54, name: "Peace", description: "Harmony, rest from conflict, and right relations.", cat: "psychological" },
+      { n: 55, name: "Weariness", description: "Fatigue and the need for rest.", cat: "psychological" },
+      { n: 56, name: "Victory", description: "Triumph in war, contests, or trials.", cat: "war" },
+      { n: 57, name: "Counsel", description: "Advisory deliberation and guidance.", cat: "social" },
+      { n: 58, name: "Troubled heart", description: "Anxiety, worry, and inner conflict.", cat: "psychological" },
+      { n: 59, name: "Judgment", description: "Rendering decisions and verdicts.", cat: "social" },
+      { n: 60, name: "Decision", description: "Act of choosing and determining outcomes.", cat: "social" },
+      { n: 61, name: "Lilis (instrument)", description: "A specific musical instrument.", cat: "arts" },
+      { n: 62, name: "Ub (instrument)", description: "Another named musical instrument.", cat: "arts" },
+      { n: 63, name: "Mesi (instrument)", description: "Named instrument used in ritual or music.", cat: "arts" },
+      { n: 64, name: "Ala (instrument)", description: "Instrument associated with sacred performance.", cat: "arts" }
+    ];
+
+    const grid = document.getElementById("meGrid");
+    const searchInput = document.getElementById("searchInput");
+    const categoryFilter = document.getElementById("categoryFilter");
+    const sortSelect = document.getElementById("sortSelect");
+    const visibleCount = document.getElementById("visibleCount");
+    const resetBtn = document.getElementById("resetBtn");
+
+    function createCard(me) {
+      const card = document.createElement("article");
+      card.className =
+        "me-card relative rounded-2xl border border-slate-800/80 bg-slate-900/70 p-4 shadow-lg shadow-black/40 flex flex-col justify-between";
+      card.dataset.number = me.n;
+      card.dataset.name = me.name.toLowerCase();
+      card.dataset.description = me.description.toLowerCase();
+      card.dataset.category = me.cat;
+
+      card.innerHTML = `
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <p class="text-xs uppercase tracking-wide text-slate-400 mb-1">
+              ME <span class="font-semibold text-indigo-300">#${me.n}</span>
+            </p>
+            <h2 class="text-base font-semibold leading-snug">
+              ${me.name}
+            </h2>
+          </div>
+          <span class="text-[10px] px-2 py-1 rounded-full bg-slate-800/80 text-slate-300 border border-slate-700 capitalize">
+            ${prettyCategory(me.cat)}
+          </span>
+        </div>
+        <p class="mt-3 text-sm text-slate-300">
+          ${me.description}
+        </p>
+      `;
+
+      return card;
+    }
+
+    function prettyCategory(cat) {
+      switch (cat) {
+        case "authority": return "Authority & Kingship";
+        case "priesthood": return "Priesthood & Temple";
+        case "underworld": return "Underworld & Liminal";
+        case "war": return "War & Conflict";
+        case "social": return "Law & Society";
+        case "arts": return "Art, Music & Crafts";
+        case "psychological": return "Mind & Emotion";
+        default: return "Other / Mixed";
+      }
+    }
+
+    function renderCards(list) {
+      grid.innerHTML = "";
+      list.forEach(me => grid.appendChild(createCard(me)));
+      updateVisibleCount();
+    }
+
+    function applyFilters() {
+      const query = searchInput.value.trim().toLowerCase();
+      const cat = categoryFilter.value;
+
+      const cards = Array.from(grid.querySelectorAll(".me-card"));
+
+      cards.forEach(card => {
+        const matchesSearch =
+          !query ||
+          card.dataset.name.includes(query) ||
+          card.dataset.description.includes(query) ||
+          card.dataset.number === query;
+
+        const matchesCat = (cat === "all") || (card.dataset.category === cat);
+
+        const visible = matchesSearch && matchesCat;
+        card.dataset.hidden = visible ? "false" : "true";
+      });
+
+      updateVisibleCount();
+    }
+
+    function updateVisibleCount() {
+      const cards = Array.from(grid.querySelectorAll(".me-card"));
+      const visible = cards.filter(c => c.dataset.hidden !== "true");
+      visibleCount.textContent = visible.length.toString();
+    }
+
+    function applySort() {
+      const mode = sortSelect.value;
+      const cards = Array.from(grid.querySelectorAll(".me-card"));
+
+      cards.sort((a, b) => {
+        const na = parseInt(a.dataset.number, 10);
+        const nb = parseInt(b.dataset.number, 10);
+        const ta = a.dataset.name;
+        const tb = b.dataset.name;
+
+        switch (mode) {
+          case "number-desc":
+            return nb - na;
+          case "name-asc":
+            return ta.localeCompare(tb);
+          case "name-desc":
+            return tb.localeCompare(ta);
+          case "number-asc":
+          default:
+            return na - nb;
+        }
+      });
+
+      cards.forEach(card => grid.appendChild(card));
+    }
+
+    // Event listeners
+    searchInput.addEventListener("input", applyFilters);
+    categoryFilter.addEventListener("change", applyFilters);
+    sortSelect.addEventListener("change", () => {
+      applySort();
+      applyFilters();
+    });
+    resetBtn.addEventListener("click", () => {
+      searchInput.value = "";
+      categoryFilter.value = "all";
+      sortSelect.value = "number-asc";
+      applySort();
+      applyFilters();
+    });
+
+    // Initial render
+    renderCards(meList);
+    applySort();
+    applyFilters();
+  </script>
+</body>
+</html>
